@@ -18,7 +18,8 @@ div {
      grid-row:2/5;
      grid-column: 1/2;
      background-color: aqua;
-     overflow: auto;
+     overflow-y: auto;
+     overflow-x: hidden;
  }
  #stickers{
      grid-row: 2/3;
@@ -67,4 +68,10 @@ div {
     left: 0;
     overflow: auto;
     padding-left: 1em;
+}
+.NewMessage{
+    background-color: chartreuse;
+    width: 85%;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }

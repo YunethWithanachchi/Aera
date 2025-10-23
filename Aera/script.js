@@ -1,13 +1,35 @@
-import { db } from "./firebase.js";
-import { collection, addDoc, query, orderBy, onSnapshot, Timestamp } from "firebase/firestore";
+/*
+import { db } from "./firebase";
+import { collection, addDoc, query, orderBy, onSnapshot, Timestamp } from "./firebase";
+*/
 
-const chatMessages = document.getElementById("chatMessages");
-const messageInput = document.getElementById("messageInput");
-const sendBtn = document.getElementById("sendBtn");
-
+//Focus Blinking(Not working -  have to check)
 window.addEventListener("DOMContentLoaded", function () {
     document.getElementById("Typing-Region").focus();
 });
+
+document.getElementById('send').addEventListener('click',sendMessage);
+document.getElementById('Typing-Region').addEventListener('keypress',(e)=>{
+   if (e.key==='Enter'){
+       e.preventDefault()
+       sendMessage();
+   }
+});
+
+function sendMessage(){
+    const msg = document.getElementById("Typing-Region").innerText.trim();
+
+    if (msg===""){return;}
+
+    const NewMsg = document.createElement('div');
+    NewMsg.classList.add('NewMessage');
+    NewMsg.textContent = msg;
+
+    document.getElementById('Chat-Box').appendChild(NewMsg);
+    document.getElementById('Typing-Region').innerText='';
+    document.getElementById('Typing-Region').focus();
+
+}
 // sendBtn.addEventListener("click", sendMessage);
 // messageInput.addEventListener("keypress", (e) => {
 //     if (e.key === "Enter") sendMessage();
