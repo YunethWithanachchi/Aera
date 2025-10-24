@@ -30,6 +30,31 @@ function sendMessage(){
     document.getElementById('Typing-Region').focus();
 
 }
+
+document.querySelector("form").addEventListener("submit",(e)=>{
+    e.preventDefault();
+    const username = document.querySelector("input").value.trim();
+
+    if (username){
+        const userId = generateUserId();
+        console.log(userId,username);
+    }
+});
+
+function generateUserId(){
+    if (crypto?.randomUUID){
+        //Moder Browsers
+        return crypto.randomUUID();
+    }else if (crypto?.getRandomValues){
+        // Slightly older browsers, fallback
+        const array = new Uint32Array(4);
+        crypto.getRandomValues(array);
+        return array.join('-');
+    }else{
+        //Really old browsers or Internet explorer
+        return "user-"+Math.floor(Math.random()*1000000);
+    }
+}
 // sendBtn.addEventListener("click", sendMessage);
 // messageInput.addEventListener("keypress", (e) => {
 //     if (e.key === "Enter") sendMessage();
