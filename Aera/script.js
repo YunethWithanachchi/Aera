@@ -1,7 +1,6 @@
-/*
-import { db } from "./firebase";
-import { collection, addDoc, query, orderBy, onSnapshot, Timestamp } from "./firebase";
-*/
+
+import { realTimeDatabase } from "./firebase";
+import { ref, set, serverTimestamp, onDisconnect, update } from "./firebase";
 
 //Focus Blinking(Not working -  have to check)
 window.addEventListener("DOMContentLoaded", function () {
@@ -31,13 +30,24 @@ function sendMessage(){
 
 }
 
-document.querySelector("form").addEventListener("submit",(e)=>{
+document.querySelector("form").addEventListener("submit",async (e)=>{
     e.preventDefault();
     const username = document.querySelector("input").value.trim();
 
     if (username){
         const userId = generateUserId();
         console.log(userId,username);
+        sessionStorage.setItem("userId",userId);
+        sessionStorage.setItem('userName',username);
+
+        const userRef = ref(realTimeDatabase,`users/${userId}`);
+        await set(userRef,{
+            username,
+            userId,
+            online : true,
+            lastActive: serverTimestamp()
+        });
+        alert(`Welcome ${username}! You are now logged in.`);
     }
 });
 
@@ -55,6 +65,8 @@ function generateUserId(){
         return "user-"+Math.floor(Math.random()*1000000);
     }
 }
+
+
 // sendBtn.addEventListener("click", sendMessage);
 // messageInput.addEventListener("keypress", (e) => {
 //     if (e.key === "Enter") sendMessage();
