@@ -1,6 +1,6 @@
 
-import { realTimeDatabase } from "./firebase";
-import { ref, set, serverTimestamp, onDisconnect, update } from "./firebase";
+import { realTimeDatabase } from "./firebase.js";
+import { ref, set, serverTimestamp, onDisconnect, update } from "./firebase.js";
 
 //Focus Blinking(Not working -  have to check)
 window.addEventListener("DOMContentLoaded", function () {
