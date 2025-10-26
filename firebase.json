@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "Aera",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",
