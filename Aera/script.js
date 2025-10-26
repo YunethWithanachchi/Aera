@@ -48,6 +48,8 @@ document.querySelector("form").addEventListener("submit",async (e)=>{
             lastActive: serverTimestamp()
         });
         alert(`Welcome ${username}! You are now logged in.`);
+        document.getElementsByClassName('FirstView')[0].style.display = 'none';
+        document.querySelector('main').style.display = 'block';
     }
 });
 
