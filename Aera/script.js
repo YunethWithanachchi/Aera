@@ -2,7 +2,8 @@
 import { realTimeDatabase } from "./firebase";
 import { ref, set, serverTimestamp, onDisconnect, update } from "./firebase";
 
-//Focus Blinking(Not working -  have to check)
+var UserId=null;
+var UserName=null;
 window.addEventListener("DOMContentLoaded", function () {
     document.getElementById("Typing-Region").focus();
 });
@@ -20,6 +21,8 @@ function sendMessage(){
 
     if (msg===""){return;}
 
+    storeDB();
+
     const NewMsg = document.createElement('div');
     NewMsg.classList.add('NewMessage');
     NewMsg.textContent = msg;
@@ -36,7 +39,8 @@ document.querySelector("form").addEventListener("submit",async (e)=>{
 
     if (username){
         const userId = generateUserId();
-        console.log(userId,username);
+        UserId = userId;
+        UserName = username;
         sessionStorage.setItem("userId",userId);
         sessionStorage.setItem('userName',username);
 
@@ -67,7 +71,12 @@ function generateUserId(){
         return "user-"+Math.floor(Math.random()*1000000);
     }
 }
-
+function storeDB(){
+    const msg = {
+        userID : UserId,
+        userName : UserName
+    }
+}
 
 // sendBtn.addEventListener("click", sendMessage);
 // messageInput.addEventListener("keypress", (e) => {
