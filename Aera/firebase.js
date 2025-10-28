@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getDatabase, ref,set,push,onDisconnect,serverTimestamp,update} from "firebase/database";
+import { getDatabase, ref,set,push,onDisconnect,serverTimestamp,update,onChildAdded} from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -24,4 +24,4 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
 export const realTimeDatabase =getDatabase(app);
-export {ref,set,onDisconnect,serverTimestamp,push,update}
+export {ref,set,onDisconnect,serverTimestamp,push,update,onChildAdded}

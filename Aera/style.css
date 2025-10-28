@@ -69,7 +69,6 @@ main{
     padding-left: 1em;
 }
 .NewMessage{
-    background-color: chartreuse;
     width: 85%;
     word-break: break-word;
     overflow-wrap: break-word;

@@ -1,9 +1,7 @@
 
 import { realTimeDatabase } from "./firebase";
-import { ref, set, serverTimestamp,push, onDisconnect, update } from "./firebase";
+import { ref, set, serverTimestamp,push, onDisconnect, update,onChildAdded } from "./firebase";
 
-var UserId=null;
-var UserName=null;
 window.addEventListener("DOMContentLoaded", function () {
     document.getElementById("Typing-Region").focus();
 });
@@ -24,7 +22,6 @@ function sendMessage() {
     }
 
     storeMsg(msg).then(r => null);
-    AddToChat(msg);
 }
 
 document.querySelector("form").addEventListener("submit",async (e)=>{
@@ -33,8 +30,7 @@ document.querySelector("form").addEventListener("submit",async (e)=>{
 
     if (username){
         const userId = generateUserId();
-        UserId = userId;
-        UserName = username;
+
         sessionStorage.setItem("userId",userId);
         sessionStorage.setItem('userName',username);
 
@@ -48,6 +44,8 @@ document.querySelector("form").addEventListener("submit",async (e)=>{
         alert(`Welcome ${username}! You are now logged in.`);
         document.getElementsByClassName('FirstView')[0].style.display = 'none';
         document.querySelector('main').style.display = 'block';
+
+        receivedMessages();
     }
 });
 
@@ -67,17 +65,25 @@ function generateUserId(){
 }
 //look for callback and promise
 async function storeMsg(Msg) {
-    const messageID = push(ref(realTimeDatabase, "Messages"));
+    const msgReference = push(ref(realTimeDatabase, "Messages"));
 
     const msg = {
-        userID: UserId,
-        userName: UserName,
+        userID: sessionStorage.getItem("userId"),
+        userName: sessionStorage.getItem("userName"),
         msg: Msg,
         timeStamp: serverTimestamp(),
     };
-    await set(messageID, msg);
+    await set(msgReference, msg);
     console.log("Message sent successfully")
 
+}
+function receivedMessages(){
+    const msgReference = ref(realTimeDatabase,"Messages");
+
+    onChildAdded(msgReference,(snapshot)=>{
+        const msg = snapshot.val();
+        AddToChat(msg.msg);
+    });
 }
 function AddToChat(msg){
 
