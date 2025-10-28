@@ -1,6 +1,6 @@
 
 import { realTimeDatabase } from "./firebase";
-import { ref, set, serverTimestamp, onDisconnect, update } from "./firebase";
+import { ref, set, serverTimestamp,push, onDisconnect, update } from "./firebase";
 
 var UserId=null;
 var UserName=null;
@@ -16,12 +16,14 @@ document.getElementById('Typing-Region').addEventListener('keypress',(e)=>{
    }
 });
 
-function sendMessage(){
+function sendMessage() {
     const msg = document.getElementById("Typing-Region").innerText.trim();
 
-    if (msg===""){return;}
+    if (msg === "") {
+        return;
+    }
 
-    storeMsg(msg);
+    storeMsg(msg).then(r => null);
     AddToChat(msg);
 }
 
@@ -63,18 +65,19 @@ function generateUserId(){
         return "user-"+Math.floor(Math.random()*1000000);
     }
 }
-function storeMsg(Msg){
+//look for callback and promise
+async function storeMsg(Msg) {
+    const messageID = push(ref(realTimeDatabase, "Messages"));
+
     const msg = {
-        userID : UserId,
-        userName : UserName,
-        msg : Msg,
-        timeStamp : Date.now()
+        userID: UserId,
+        userName: UserName,
+        msg: Msg,
+        timeStamp: serverTimestamp(),
     };
-    realTimeDatabase.ref("Messages").push(msg,(error)=>{
-        if (error){
-            console.log("Message Not Sent",error)
-        }
-    });
+    await set(messageID, msg);
+    console.log("Message sent successfully")
+
 }
 function AddToChat(msg){
 
