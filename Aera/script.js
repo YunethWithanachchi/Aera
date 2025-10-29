@@ -82,10 +82,16 @@ function receivedMessages(){
 
     onChildAdded(msgReference,(snapshot)=>{
         const msg = snapshot.val();
-        AddToChat(msg.msg);
+        AddToChat(msg.);
     });
 }
-function AddToChat(msg){
+function AddToChat(RawMsg){
+    var msg
+    if (RawMsg.userID===sessionStorage.getItem("userId")){
+        msg = `You : ${RawMsg.msg}`
+    }else {
+        msg = `${RawMsg.userName} : ${RawMsg.msg}`
+    }
 
     const NewMsg = document.createElement('div');
     NewMsg.classList.add('NewMessage');
