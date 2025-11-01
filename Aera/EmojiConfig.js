@@ -7,7 +7,7 @@ document.querySelector('emoji-picker').addEventListener('emoji-click',(event)=>{
    const textAfter = input.value.substring(cursorPos);
    input.value = textBefore+ emoji+textAfter;
    input.focus();
-   input.focus();
+
 });
 
 }
