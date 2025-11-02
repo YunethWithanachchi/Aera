@@ -1,8 +1,8 @@
-import 'emoji-mart'
+import 'emoji-picker-element'
 
 document.querySelector('emoji-picker').addEventListener('emoji-click',(event)=>{
    const emoji = event.detail.unicode;
-   const cursorPos - input.selectionStart;
+   const cursorPos = input.selectionStart;
    const textBefore = input.value.substring(0,cursorPos);
    const textAfter = input.value.substring(cursorPos);
    input.value = textBefore+ emoji+textAfter;
@@ -10,4 +10,3 @@ document.querySelector('emoji-picker').addEventListener('emoji-click',(event)=>{
 
 });
 
-}
