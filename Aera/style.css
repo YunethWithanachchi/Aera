@@ -101,4 +101,5 @@ form *{
 }
 emoji-picker{
     display: block;
+    overflow: auto;
 }
