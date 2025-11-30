@@ -27,7 +27,7 @@ function sendMessage() {
 document.querySelector("form").addEventListener("submit",async (e)=>{
     e.preventDefault();
     const username = document.querySelector("input").value.trim();
-
+    console.log(auth.currentUser);
     if (username){
         const userId = generateUserId();
 
