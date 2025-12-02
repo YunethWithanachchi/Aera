@@ -1,6 +1,8 @@
 
 import { realTimeDatabase } from "./firebase";
 import { ref, set, serverTimestamp,push, onDisconnect, update,onChildAdded } from "./firebase";
+import {storage} from "./firebase";
+import {ref as storageRef, uploadBytes, getDownloadURL} from "firebase/storage";
 
 window.addEventListener("DOMContentLoaded", function () {
     document.getElementById("Typing-Region").focus();
@@ -21,7 +23,7 @@ function sendMessage() {
         return;
     }
 
-    storeMsg(msg).then(r => null);
+    storeMsg(msg,"text").then(r => null);
 }
 
 document.querySelector("form").addEventListener("submit",async (e)=>{
@@ -64,12 +66,13 @@ function generateUserId(){
     }
 }
 //look for callback and promise
-async function storeMsg(Msg) {
+async function storeMsg(Msg,type) {
     const msgReference = push(ref(realTimeDatabase, "Messages"));
 
     const msg = {
         userID: sessionStorage.getItem("userId"),
         userName: sessionStorage.getItem("userName"),
+        type: type,
         msg: Msg,
         timeStamp: serverTimestamp(),
     };
@@ -86,20 +89,57 @@ function receivedMessages(){
     });
 }
 function AddToChat(RawMsg){
-    var msg;
+    //finding the person sent
+    var person;
     if (RawMsg.userID===sessionStorage.getItem("userId")){
-        msg = `You : ${RawMsg.msg}`;
+        person = `You :`;
     }else {
-        msg = `${RawMsg.userName} : ${RawMsg.msg}`;
+        person = `${RawMsg.userName} :`;
+    }
+    //identifying the type of message
+    var NewMsg;
+    if (RawMsg.type==='image'){
+        NewMsg = document.createElement('img');
+        NewMsg.src = RawMsg.msg;
+        NewMsg.style.maxWidth ="50vw";
+        NewMsg.style.borderRadius = "10px"
+        NewMsg.style.margin = "5px 0"
+
+    }else{
+        var text = `${person} ${RawMsg.msg}`
+        NewMsg = document.createElement('div');
+        NewMsg.classList.add('NewMessage');
+        NewMsg.textContent = text;
+        document.getElementById('Typing-Region').innerText='';
     }
 
-    const NewMsg = document.createElement('div');
-    NewMsg.classList.add('NewMessage');
-    NewMsg.textContent = msg;
-
     document.getElementById('Chat-Box').appendChild(NewMsg);
-    document.getElementById('Typing-Region').innerText='';
     document.getElementById('Typing-Region').focus();
+}
+
+//uploading an image
+//when the button is clicked we trigger the input
+document.getElementById('uploadBtn').addEventListener('click',()=>{
+    document.getElementById('imageInput').click();
+});
+//When an image is selected
+document.getElementById('imageInput').addEventListener('change',async (event) => {
+    const image = event.target.files[0];
+    if (!image) {
+        return;
+    } else {
+        await uploadImage(image)
+    }
+});
+
+// saving image to firebase storage and sending the URL to realTime DB storing
+async function uploadImage(file){
+    const filepath = `chatImages/${sessionStorage.getItem("userId")}/${Date.now()}_${file.name}`;
+    const imgRef = storageRef(storage,filepath);
+    await uploadBytes(imgRef,file); //uploading file to storage
+
+    const downloadURL = await getDownloadURL(imgRef);
+    await storeMsg(downloadURL, "image")
 }
 
 

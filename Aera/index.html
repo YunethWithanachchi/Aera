@@ -25,8 +25,17 @@
       <div id="Chat-Box"></div>
       <div id="stickers"><div class="boxHeader">Stickers</div></div>
       <div id="Emojis"><div class="boxHeader">Emojis</div><emoji-picker></emoji-picker></div>
-      <div id="images"><div class="boxHeader">Images</div><button><img src="dist/assets/Upload.png" alt="upload image" style="width: 100px; height: 100px"></button></div>
-      <div id="prompt-Area" ><div id="Typing-Region" contenteditable="true"></div><button id="send">Send</button></div>
+      <div id="images"
+      ><div class="boxHeader">Images</div>
+        <button id="uploadBtn">
+          <img id= "upload" src="Assets/uploadIcon.png" alt="upload image" width="50vw" height="50vw">
+        </button>
+        <input type="file"  id="imageInput" accept="image/*" style="display: none">
+      </div>
+      <div id="prompt-Area" >
+        <div id="Typing-Region" contenteditable="true"></div>
+        <button id="send">Send</button>
+      </div>
     </section>
   </main>
   <script type="module" src="script.js"></script>

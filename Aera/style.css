@@ -39,6 +39,9 @@ main{
      background-color: #8675A9;
      overflow: auto;
 
+     display: flex;
+     flex-direction: column;
+
  }
  #prompt-Area{
      grid-row: 5/6;
@@ -102,4 +105,19 @@ form *{
 emoji-picker{
     display: block;
     overflow: auto;
+}
+#images>button{
+    align-self: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50%;
+    border:none;
+    margin-top: 2vw;
+    border-radius: 20%;
+
+}
+#upload{
+    display: block;
+    margin: 0;
 }
