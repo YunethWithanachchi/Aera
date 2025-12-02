@@ -117,6 +117,14 @@ function AddToChat(RawMsg){
     document.getElementById('Typing-Region').focus();
 }
 
+document.getElementById('uploadBtn').addEventListener('click',()=>{
+    window.myWidget.open();
+});
+window.addEventListener('cloudinary-upload',async (e)=>{
+    const imageURL = e.detail;
+    await storeMsg(imageURL,"image");
+});
+/*
 //uploading an image
 //when the button is clicked we trigger the input
 document.getElementById('uploadBtn').addEventListener('click',()=>{
@@ -132,6 +140,7 @@ document.getElementById('imageInput').addEventListener('change',async (event) =>
     }
 });
 
+
 // saving image to firebase storage and sending the URL to realTime DB storing
 async function uploadImage(file){
     const filepath = `chatImages/${sessionStorage.getItem("userId")}/${Date.now()}_${file.name}`;
@@ -141,5 +150,6 @@ async function uploadImage(file){
     const downloadURL = await getDownloadURL(imgRef);
     await storeMsg(downloadURL, "image")
 }
+*/
 
 
