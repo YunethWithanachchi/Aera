@@ -1,15 +1,16 @@
-import {defineConfig} from "vite";
+import { defineConfig } from "vite";
+import { resolve } from "path";
 
 export default defineConfig({
     root: 'Aera',
     base: './',
-    build:{
-        outDir:'../dist',
-        emptyOutDir:true,
+    build: {
+        outDir: '../dist',
+        emptyOutDir: true,
         rollupOptions: {
             input: {
-                menu: 'Aera/menu.html',
-                chat: 'Aera/index.html'
+                menu: resolve(__dirname, 'Aera/menu.html'),
+                index: resolve(__dirname, 'Aera/index.html')
             }
         }
     }
