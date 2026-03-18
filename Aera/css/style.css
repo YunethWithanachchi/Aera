@@ -76,32 +76,6 @@ main{
     word-break: break-word;
     overflow-wrap: break-word;
 }
-.FirstView{
-    margin: 0;
-    height: 60vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-#LoginBox{
-    width: 60%;
-    max-width: 320px;
-    text-align: center;
-    background-color: #FFD5CD;
-}
-input{
-    padding: 0.6rem;
-    margin-bottom: 1rem;
-}
-form>button{
-    cursor: pointer;
-    padding: 0.6rem;
-    margin-bottom: 3rem;
-}
-form *{
-    box-sizing: border-box;
-    width: 80%;
-}
 emoji-picker{
     display: block;
     overflow: auto;

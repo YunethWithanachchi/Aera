@@ -3,23 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>Aera</title>
-    <link rel="stylesheet" href="menuStyle.css">
+    <link rel="stylesheet" href="./css/menuStyle.css">
 </head>
-<body>
-<div class="menu-container">
+<body style="background-color:#EFBBCF;">
+    <h1 style="color:#8675A9">Aera❤️</h1>
+    <section class="FirstView">
+        <div id="LoginBox">
+            <h2>Welcome! Let's Enter your Username</h2>
+            <form>
+                <input type="text" placeholder="Username" required><br>
+                <button type="submit">Login</button>
+                <button>Sign in with Google</button>
+            </form>
+        </div>
+    </section>
+    <div class="menu-container">
 
-    <div class="segment global" onclick="goToGlobal()">
-        🌍 Global Chat
+        <div class="segment global" onclick="goToGlobal()">
+            🌍 Global Chat
+        </div>
+
+        <div class="segment random" onclick="goToRandom()">
+            🎲 Random Chat
+        </div>
+
+        <div class="segment direct" onclick="goToDirect()">
+            💬 Direct Chat
+        </div>
+
     </div>
-
-    <div class="segment random" onclick="goToRandom()">
-        🎲 Random Chat
-    </div>
-
-    <div class="segment direct" onclick="goToDirect()">
-        💬 Direct Chat
-    </div>
-
-</div>
 </body>
+<script type="module" src="./js/menu.js"></script>
 </html>
