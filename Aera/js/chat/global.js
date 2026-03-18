@@ -6,14 +6,15 @@ import {ref as storageRef, uploadBytes, getDownloadURL} from "firebase/storage";
 
 window.addEventListener("DOMContentLoaded", function () {
     document.getElementById("Typing-Region").focus();
-});
 
-document.getElementById('send').addEventListener('click',sendMessage);
-document.getElementById('Typing-Region').addEventListener('keypress',(e)=>{
-   if (e.key==='Enter'){
-       e.preventDefault()
-       sendMessage();
-   }
+    document.getElementById('send').addEventListener('click',sendMessage);
+
+    document.getElementById('Typing-Region').addEventListener('keypress',(e)=>{
+       if (e.key==='Enter'){
+           e.preventDefault()
+           sendMessage();
+       }
+    });
 });
 
 function sendMessage() {
@@ -24,6 +25,8 @@ function sendMessage() {
     }
 
     storeMsg(msg,"text").then(r => null);
+    msg ="";
+
 }
 
 document.querySelector("form").addEventListener("submit",async (e)=>{
@@ -67,7 +70,7 @@ function generateUserId(){
 }
 //look for callback and promise
 async function storeMsg(Msg,type) {
-    const msgReference = push(ref(realTimeDatabase, "GlobalMessages"));
+    const msgReference = push(ref(realTimeDatabase, "globalMessages"));
 
     const msg = {
         userID: sessionStorage.getItem("userId"),
@@ -81,7 +84,7 @@ async function storeMsg(Msg,type) {
 
 }
 function receivedMessages(){
-    const msgReference = ref(realTimeDatabase,"GlobalMessages");
+    const msgReference = ref(realTimeDatabase,"globalMessages");
 
     onChildAdded(msgReference,(snapshot)=>{
         const msg = snapshot.val();
@@ -96,6 +99,10 @@ function AddToChat(RawMsg){
     }else {
         person = `${RawMsg.userName} :`;
     }
+    //time
+    const time = RawMsg.timeStamp
+        ? new Date(RawMsg.timeStamp).toLocaleTimeString()
+        : "";
     //identifying the type of message
     var NewMsg;
     if (RawMsg.type==='image'){
@@ -106,11 +113,10 @@ function AddToChat(RawMsg){
         NewMsg.style.margin = "5px 0"
 
     }else{
-        var text = `${person} ${RawMsg.msg}`
+        var text = `${person} ${RawMsg.msg} ${time}`;
         NewMsg = document.createElement('div');
         NewMsg.classList.add('NewMessage');
         NewMsg.textContent = text;
-        document.getElementById('Typing-Region').innerText='';
     }
 
     document.getElementById('Chat-Box').appendChild(NewMsg);
