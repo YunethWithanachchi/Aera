@@ -1,0 +1,42 @@
+/* Full screen container */
+.menu-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Each segment */
+.segment {
+    flex: 1; /* equal height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* Colors */
+.global {
+    background-color: #3b82f6;
+}
+
+.random {
+    background-color: #22c55e;
+}
+
+.direct {
+    background-color: #a855f7;
+}
+@media (min-width: 768px) {
+    .menu-container {
+        flex-direction: row; /* desktop = side by side */
+    }
+}
+/* Hover / touch effect */
+.segment:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}

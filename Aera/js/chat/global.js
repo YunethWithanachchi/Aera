@@ -1,7 +1,7 @@
 
-import { realTimeDatabase } from "./firebase";
-import { ref, set, serverTimestamp,push, onDisconnect, update,onChildAdded } from "./firebase";
-import {storage} from "./firebase";
+import { realTimeDatabase } from "../common/firebase";
+import { ref, set, serverTimestamp,push, onDisconnect, update,onChildAdded } from "../common/firebase";
+import {storage} from "../common/firebase";
 import {ref as storageRef, uploadBytes, getDownloadURL} from "firebase/storage";
 
 window.addEventListener("DOMContentLoaded", function () {
@@ -67,7 +67,7 @@ function generateUserId(){
 }
 //look for callback and promise
 async function storeMsg(Msg,type) {
-    const msgReference = push(ref(realTimeDatabase, "Messages"));
+    const msgReference = push(ref(realTimeDatabase, "GlobalMessages"));
 
     const msg = {
         userID: sessionStorage.getItem("userId"),
@@ -81,7 +81,7 @@ async function storeMsg(Msg,type) {
 
 }
 function receivedMessages(){
-    const msgReference = ref(realTimeDatabase,"Messages");
+    const msgReference = ref(realTimeDatabase,"GlobalMessages");
 
     onChildAdded(msgReference,(snapshot)=>{
         const msg = snapshot.val();
