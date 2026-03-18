@@ -8,8 +8,8 @@ export default defineConfig({
         emptyOutDir:true,
         rollupOptions: {
             input: {
-                menu: 'menu.html',
-                chat: 'index.html'
+                menu: 'Aera/menu.html',
+                chat: 'Aera/index.html'
             }
         }
     }
