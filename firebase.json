@@ -10,6 +10,14 @@
       {
         "source": "/",
         "destination": "/menu.html"
+      },
+      {
+        "source": "/menu.html",
+        "destination": "/menu.html"
+      },
+      {
+        "source": "/index.html",
+        "destination": "/index.html"
       }
     ]
   }
