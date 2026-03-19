@@ -1,7 +1,7 @@
 
-import { realTimeDatabase } from "../common/firebase";
-import { ref, set, serverTimestamp,push, onDisconnect, update,onChildAdded } from "../common/firebase";
-import {storage} from "../common/firebase";
+import { realTimeDatabase } from "../common/firebase.js";
+import { ref, set, serverTimestamp,push, onDisconnect, update,onChildAdded } from "../common/firebase.js";
+//import {storage} from "../common/firebase";
 import {ref as storageRef, uploadBytes, getDownloadURL} from "firebase/storage";
 
 // DOM is already ready (module loaded after page load), but guard anyway
@@ -18,8 +18,7 @@ function init() {
         window.myWidget.open();
     });
 
-    // ✅ Actually call receivedMessages so the chat box populates
-    receivedMessages();
+        receivedMessages();
 }
 
 if (document.readyState === "loading") {
@@ -29,14 +28,13 @@ if (document.readyState === "loading") {
 }
 
 function sendMessage() {
-    const msg = document.getElementById("Typing-Region").innerText.trim();
-
+    let msg = document.getElementById("Typing-Region").innerText.trim();
+    document.getElementById("Typing-Region").innerText = "";
     if (msg === "") {
         return;
     }
 
     storeMsg(msg,"text").then(r => null);
-    msg ="";
 
 }
 
