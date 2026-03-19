@@ -3,7 +3,7 @@ import { resolve } from "path";
 
 export default defineConfig({
     root: 'Aera',
-    base: './',
+    base: '/',
     build: {
         outDir: '../dist',
         emptyOutDir: true,

@@ -1,15 +1,10 @@
 {
   "hosting": {
     "public": "dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
-      { "source": "/", "destination": "/menu.html" },
-      { "source": "/menu.html", "destination": "/menu.html" },
-      { "source": "/index.html", "destination": "/index.html" }
+      { "source": "/",    "destination": "/menu.html" },
+      { "source": "**",   "destination": "/menu.html" }
     ]
   }
 }

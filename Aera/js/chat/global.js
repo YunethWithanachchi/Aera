@@ -4,18 +4,29 @@ import { ref, set, serverTimestamp,push, onDisconnect, update,onChildAdded } fro
 import {storage} from "../common/firebase";
 import {ref as storageRef, uploadBytes, getDownloadURL} from "firebase/storage";
 
-window.addEventListener("DOMContentLoaded", function () {
+// DOM is already ready (module loaded after page load), but guard anyway
+function init() {
     document.getElementById("Typing-Region").focus();
-
-    document.getElementById('send').addEventListener('click',sendMessage);
-
-    document.getElementById('Typing-Region').addEventListener('keypress',(e)=>{
-       if (e.key==='Enter'){
-           e.preventDefault()
-           sendMessage();
-       }
+    document.getElementById("send").addEventListener("click", sendMessage);
+    document.getElementById("Typing-Region").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
+        }
     });
-});
+    document.getElementById("uploadBtn").addEventListener("click", () => {
+        window.myWidget.open();
+    });
+
+    // ✅ Actually call receivedMessages so the chat box populates
+    receivedMessages();
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+} else {
+    init(); // DOM already ready
+}
 
 function sendMessage() {
     const msg = document.getElementById("Typing-Region").innerText.trim();
@@ -84,9 +95,6 @@ function AddToChat(RawMsg){
     document.getElementById('Typing-Region').focus();
 }
 
-document.getElementById('uploadBtn').addEventListener('click',()=>{
-    window.myWidget.open();
-});
 window.addEventListener('cloudinary-upload',async (e)=>{
     const imageURL = e.detail;
     await storeMsg(imageURL,"image");
