@@ -14,9 +14,15 @@ if (!VALID.includes(type)) {
     throw new Error(`Invalid chat type: ${type}`);
 }
 
-// Dynamic import() — Vite understands this and creates proper code-split chunks
+// ✅ Explicit imports — Vite can statically analyze all three
+const modules = {
+    global: () => import("./chat/global.js"),
+    random: () => import("./chat/random.js"),
+    direct: () => import("./chat/direct.js"),
+};
+
 try {
-    await import(`./chat/${type}.js`);
+    await modules[type]();
 } catch (err) {
     console.error("Failed to load chat module:", err);
     window.location.replace("./menu.html");
