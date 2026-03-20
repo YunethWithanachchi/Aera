@@ -4,7 +4,7 @@ import { initDirect } from "./chat/direct.js";
 
 const username = sessionStorage.getItem("userName");
 if (!username) {
-    window.location.replace("/");
+    window.location.replace("/menu.html");
     throw new Error("No session");
 }
 
