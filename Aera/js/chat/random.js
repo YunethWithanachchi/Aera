@@ -73,7 +73,6 @@ async function createSession(userA, nameA, userB, nameB) {
 
     console.log("Session created:", sessionId);
 }
-import { onValue } from "../common/firebase.js";
 
 function listenForMatch(userId) {
     const sessionRef = ref(realTimeDatabase, `userSessions/${userId}`);
