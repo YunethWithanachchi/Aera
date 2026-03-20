@@ -138,3 +138,21 @@ function AddToChat(RawMsg) {
 }
 
 window.addEventListener("cloudinary-upload", async (e) => { await storeMsg(e.detail, "image"); });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const sendBtn = document.getElementById("send");
+    const typingBox = document.getElementById("Typing-Region");
+
+    if (sendBtn) {
+        sendBtn.addEventListener("click", sendMessage);
+    }
+
+    if (typingBox) {
+        typingBox.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    }
+});
