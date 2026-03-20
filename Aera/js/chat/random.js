@@ -1,6 +1,6 @@
 import { realTimeDatabase } from "../common/firebase.js";
-import { ref, set, onDisconnect, get, remove } from "../common/firebase.js";
-
+import { ref, set, onDisconnect, get, remove,onValue, onChildAdded, serverTimestamp  } from "../common/firebase.js";
+let sessionId = null;
 export async function initRandom() {
     const userId = sessionStorage.getItem("userId");
     const userName = sessionStorage.getItem("userName");
@@ -10,6 +10,7 @@ export async function initRandom() {
         return;
     }
 
+    listenForMatch(userId);
     await tryMatch(userId, userName);
 }
 async function tryMatch(userId, userName) {
@@ -87,9 +88,54 @@ function listenForMatch(userId) {
         }
     });
 }
-function startChat(sessionId) {
+function startChat(Id) {
     // reuse your chat UI
-    window.currentSession = sessionId;
+    window.currentSession =Id;
+    sessionId =Id;
 
     document.getElementById("Chat-Box").innerText = "Connected to stranger!";
+    receivedMessages();
 }
+
+function sendMessage() {
+    let msg = document.getElementById("Typing-Region").innerText.trim();
+    if (!msg) return;
+    storeMsg(msg, "text");
+    document.getElementById("Typing-Region").innerText = "";
+}
+
+async function storeMsg(content, type) {
+    const msgReference = push(ref(realTimeDatabase, `sessions/${sessionId}/messages`));
+    await set(msgReference, {
+        userID: sessionStorage.getItem("userId"),
+        userName: sessionStorage.getItem("userName"),
+        type: type,
+        msg: content,
+        timeStamp: serverTimestamp(),
+    });
+}
+
+function receivedMessages() {
+    onChildAdded(ref(realTimeDatabase, `sessions/${sessionId}/messages`), (snapshot) => {
+        AddToChat(snapshot.val());
+    });
+}
+
+function AddToChat(RawMsg) {
+    const person = RawMsg.userID === sessionStorage.getItem("userId") ? "You :" : `${RawMsg.userName} :`;
+    const time = RawMsg.timeStamp ? new Date(RawMsg.timeStamp).toLocaleTimeString() : "";
+    let NewMsg;
+    if (RawMsg.type === "image") {
+        NewMsg = document.createElement("img");
+        NewMsg.src = RawMsg.msg;
+        NewMsg.style.cssText = "max-width:50vw;border-radius:10px;margin:5px 0";
+    } else {
+        NewMsg = document.createElement("div");
+        NewMsg.classList.add("NewMessage");
+        NewMsg.textContent = `${person} ${RawMsg.msg} ${time}`;
+    }
+    document.getElementById("Chat-Box").appendChild(NewMsg);
+    document.getElementById("Typing-Region").focus();
+}
+
+window.addEventListener("cloudinary-upload", async (e) => { await storeMsg(e.detail, "image"); });
