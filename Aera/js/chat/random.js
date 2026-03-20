@@ -1,26 +1,24 @@
 import { realTimeDatabase } from "../common/firebase.js";
 import { ref, set } from "../common/firebase.js";
 
-const userId = sessionStorage.getItem("userId");
-const userName = sessionStorage.getItem("userName");
+export function initRandom() {
+    const userId   = sessionStorage.getItem("userId");
+    const userName = sessionStorage.getItem("userName");
 
-if (!userId) {
-    alert("User not logged in");
-    window.location.href = "menu.html";
+    if (!userId) {
+        window.location.href = "/";
+        return;
+    }
+
+    joinQueue(userId, userName);
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-    joinQueue();
-});
-
-function joinQueue() {
+function joinQueue(userId, userName) {
     const queueRef = ref(realTimeDatabase, `waitingQueue/${userId}`);
-
     set(queueRef, {
-        userId: userId,
+        userId:   userId,
         userName: userName,
-        joinedAt: Date.now()
+        joinedAt: Date.now(),
     });
-
     console.log("Joined waiting queue...");
 }

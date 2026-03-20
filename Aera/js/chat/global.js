@@ -1,7 +1,7 @@
 import { realTimeDatabase } from "../common/firebase.js";
 import { ref, set, serverTimestamp, push, onChildAdded } from "../common/firebase.js";
 
-function init() {
+export function init() {
     document.getElementById("Typing-Region").focus();
 
     document.getElementById("send").addEventListener("click", sendMessage);
@@ -17,7 +17,6 @@ function init() {
         window.myWidget.open();
     });
 
-    // ✅ Must be called — this is what populates the chat box
     receivedMessages();
 }
 
