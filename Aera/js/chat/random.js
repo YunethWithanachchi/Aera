@@ -87,13 +87,50 @@ function listenForMatch(userId) {
         }
     });
 }
+
+function listenForDisconnect() {
+    const usersRef = ref(realTimeDatabase, `sessions/${sessionId}/users`);
+
+    onValue(usersRef, (snapshot) => {
+        const users = snapshot.val();
+
+        if (!users || Object.keys(users).length < 2) {
+            console.log("Stranger disconnected");
+
+            handleStrangerLeft();
+        }
+    });
+}
+
+function handleStrangerLeft() {
+    const chatBox = document.getElementById("Chat-Box");
+
+    const msg = document.createElement("div");
+    msg.textContent = "⚠️ Stranger has disconnected.";
+    msg.style.color = "red";
+
+    chatBox.appendChild(msg);
+
+    const sessionRef = ref(realTimeDatabase, `sessions/${sessionId}`);
+    remove(sessionRef);
+
+    // optional: disable sending
+    sessionId = null;
+}
+
 function startChat(Id) {
-    // reuse your chat UI
+
     window.currentSession =Id;
     sessionId =Id;
+    const userId = sessionStorage.getItem("userId");
+
+    const userSessionRef = ref(realTimeDatabase,`sessions/${sessionId}/users/${userId}`);
+    onDisconnect(userSessionRef).remove();
 
     document.getElementById("Chat-Box").innerText = "Connected to stranger!";
+    document.getElementById("Chat-Box").innerText = "Connected to stranger!";
     receivedMessages();
+    listenForDisconnect();
 }
 
 function sendMessage() {
