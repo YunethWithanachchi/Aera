@@ -47,8 +47,10 @@ async function joinQueue(userId, userName) {
 
     onDisconnect(queueRef).remove();
 
-    const chatBox = document.getElementById("Chat-Box");
-    chatBox.innerHTML = "<div>🔍 Looking for a match...</div>";
+    const status = document.createElement("div");
+    status.textContent =  "🔍 Looking for a match...";
+    status.id = "status-msg";
+    document.getElementById("Chat-Box").appendChild(status);
 }
 import { push } from "../common/firebase.js";
 
@@ -98,10 +100,8 @@ function listenForDisconnect() {
         const users = snapshot.val();
 
         if (!users || Object.keys(users).length < 2) {
-            console.log("Stranger disconnected");
-
-            handleStrangerLeft();
             isDisconnectedHandled = true;
+            handleStrangerLeft();
         }
     });
 }
@@ -132,6 +132,7 @@ function startChat(Id) {
     const userSessionRef = ref(realTimeDatabase,`sessions/${sessionId}/users/${userId}`);
     onDisconnect(userSessionRef).remove();
 
+    document.getElementById("status-msg")?.remove();
     document.getElementById("Chat-Box").innerText = "Connected to stranger!";
     receivedMessages();
     listenForDisconnect();
