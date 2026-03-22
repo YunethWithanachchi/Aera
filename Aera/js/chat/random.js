@@ -1,6 +1,7 @@
 import { realTimeDatabase } from "../common/firebase.js";
 import { ref, set, onDisconnect, get, remove,onValue, onChildAdded, serverTimestamp  } from "../common/firebase.js";
 let sessionId = null;
+let isDisconnectedHandled = false;
 export async function initRandom() {
     const userId = sessionStorage.getItem("userId");
     const userName = sessionStorage.getItem("userName");
@@ -46,7 +47,8 @@ async function joinQueue(userId, userName) {
 
     onDisconnect(queueRef).remove();
 
-    console.log("Waiting for match...");
+    const chatBox = document.getElementById("Chat-Box");
+    chatBox.innerHTML = "<div>🔍 Looking for a match...</div>";
 }
 import { push } from "../common/firebase.js";
 
@@ -92,12 +94,14 @@ function listenForDisconnect() {
     const usersRef = ref(realTimeDatabase, `sessions/${sessionId}/users`);
 
     onValue(usersRef, (snapshot) => {
+        if(isDisconnectedHandled) return; //prevent duplicate
         const users = snapshot.val();
 
         if (!users || Object.keys(users).length < 2) {
             console.log("Stranger disconnected");
 
             handleStrangerLeft();
+            isDisconnectedHandled = true;
         }
     });
 }
@@ -120,6 +124,7 @@ function handleStrangerLeft() {
 
 function startChat(Id) {
 
+    isDisconnectedHandled =false;
     window.currentSession =Id;
     sessionId =Id;
     const userId = sessionStorage.getItem("userId");
@@ -127,7 +132,6 @@ function startChat(Id) {
     const userSessionRef = ref(realTimeDatabase,`sessions/${sessionId}/users/${userId}`);
     onDisconnect(userSessionRef).remove();
 
-    document.getElementById("Chat-Box").innerText = "Connected to stranger!";
     document.getElementById("Chat-Box").innerText = "Connected to stranger!";
     receivedMessages();
     listenForDisconnect();
