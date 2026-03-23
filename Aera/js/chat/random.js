@@ -127,6 +127,7 @@ function startChat(Id) {
     isDisconnectedHandled =false;
     window.currentSession =Id;
     sessionId =Id;
+    sessionId =Id1;
     const userId = sessionStorage.getItem("userId");
 
     const userSessionRef = ref(realTimeDatabase,`sessions/${sessionId}/users/${userId}`);
