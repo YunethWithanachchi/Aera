@@ -2,6 +2,7 @@ import { realTimeDatabase } from "../common/firebase.js";
 import { ref, set, serverTimestamp, push, onChildAdded } from "../common/firebase.js";
 
 export function initGlobal() {
+    leaveChatBtn();
     document.getElementById("Typing-Region").focus();
     document.getElementById("send").addEventListener("click", sendMessage);
     document.getElementById("Typing-Region").addEventListener("keypress", (e) => {
@@ -9,6 +10,16 @@ export function initGlobal() {
     });
     document.getElementById("uploadBtn").addEventListener("click", () => { window.myWidget.open(); });
     receivedMessages();
+}
+
+function leaveChatBtn(){
+    const btn = document.getElementById("skipBtn");
+
+    btn.textContent = "Leave";
+
+    btn.onclick = ()=>{
+        window.location.href = "menu.html";
+    };
 }
 
 function sendMessage() {

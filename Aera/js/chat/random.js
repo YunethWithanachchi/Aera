@@ -3,6 +3,7 @@ import { ref, set, onDisconnect, get, remove,onValue, onChildAdded, serverTimest
 let sessionId = null;
 let isDisconnectedHandled = false;
 export async function initRandom() {
+    leaveChatBtn();
     const userId = sessionStorage.getItem("userId");
     const userName = sessionStorage.getItem("userName");
 
@@ -16,6 +17,17 @@ export async function initRandom() {
     listenForMatch(userId);
     await tryMatch(userId, userName);
 }
+
+function leaveChatBtn(){
+    const btn = document.getElementById("skipBtn");
+
+    btn.textContent = "Skip";
+
+    btn.onclick = ()=>{
+        window.location.href = "menu.html";
+    };
+}
+
 async function tryMatch(userId, userName) {
     const queueRef = ref(realTimeDatabase, "waitingQueue");
     const snapshot = await get(queueRef);
