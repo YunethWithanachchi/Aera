@@ -1,8 +1,11 @@
 import { realTimeDatabase } from "../common/firebase.js";
 import { ref, set, onDisconnect, get, remove,onValue, onChildAdded, serverTimestamp  } from "../common/firebase.js";
 let sessionId = null;
+let isInitialized = false;
 let isDisconnectedHandled = false;
 export async function initRandom() {
+    if (isInitialized) return;
+    isInitialized = true;
     leaveChatBtn();
     const userId = sessionStorage.getItem("userId");
     const userName = sessionStorage.getItem("userName");
@@ -62,9 +65,11 @@ async function joinQueue(userId, userName) {
     onDisconnect(queueRef).remove();
 
     const status = document.createElement("div");
+    const chatBox =document.getElementById("Chat-Box");
+    chatBox.innerHTML="";
     status.textContent =  "🔍 Looking for a match...";
     status.id = "status-msg";
-    document.getElementById("Chat-Box").appendChild(status);
+    chatBox.appendChild(status);
 }
 import { push } from "../common/firebase.js";
 
@@ -78,6 +83,7 @@ async function createSession(userA, nameA, userB, nameB) {
             [userA]: nameA,
             [userB]: nameB
         },
+        status:"active",
         createdAt: Date.now()
     });
 
@@ -107,13 +113,12 @@ function listenForMatch(userId) {
 }
 
 function listenForDisconnect() {
-    const usersRef = ref(realTimeDatabase, `sessions/${sessionId}/users`);
+    const statusRef = ref(realTimeDatabase, `sessions/${sessionId}/status`);
 
-    onValue(usersRef, (snapshot) => {
-        if(isDisconnectedHandled) return; //prevent duplicate
-        const users = snapshot.val();
+    onValue(statusRef, (snapshot) => {
+        const status = snapshot.val();
 
-        if (!users || Object.keys(users).length < 2) {
+        if (status === "ended" && !isDisconnectedHandled) {
             isDisconnectedHandled = true;
             handleStrangerLeft();
         }
@@ -162,6 +167,8 @@ function startChat(Id) {
 }
 
 function sendMessage() {
+    if (!sessionId) return;
+
     let msg = document.getElementById("Typing-Region").innerText.trim();
     if (!msg) return;
     storeMsg(msg, "text");
@@ -207,6 +214,7 @@ function skipStranger(){
 
     set(ref(realTimeDatabase,`sessions/${sessionId}/status`),"ended");
     sessionId = null;
+    isInitialized = false;
 
     // clear UI
     const chatBox = document.getElementById("Chat-Box");
