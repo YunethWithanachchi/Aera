@@ -24,7 +24,7 @@ function leaveChatBtn(){
     btn.textContent = "Skip";
 
     btn.onclick = ()=>{
-        window.location.href = "menu.html";
+        skipStranger();
     };
 }
 
@@ -200,6 +200,20 @@ function AddToChat(RawMsg) {
     }
     document.getElementById("Chat-Box").appendChild(NewMsg);
     document.getElementById("Typing-Region").focus();
+}
+
+function skipStranger(){
+    if (!sessionId) return;
+
+    set(ref(realTimeDatabase,`sessions/${sessionId}/status`),"ended");
+    sessionId = null;
+
+    // clear UI
+    const chatBox = document.getElementById("Chat-Box");
+    chatBox.innerHTML = "<div>🔍 Looking for a new match...</div>";
+
+    // restart matching
+    initRandom();
 }
 
 window.addEventListener("cloudinary-upload", async (e) => { await storeMsg(e.detail, "image"); });
