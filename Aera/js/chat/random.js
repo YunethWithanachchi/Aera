@@ -11,6 +11,8 @@ export async function initRandom() {
         return;
     }
 
+    document.querySelector("main").style.display = "block";
+
     listenForMatch(userId);
     await tryMatch(userId, userName);
 }
@@ -107,6 +109,9 @@ function listenForDisconnect() {
 }
 
 function handleStrangerLeft() {
+
+    if (isDisconnectedHandled) return;
+
     const chatBox = document.getElementById("Chat-Box");
 
     const msg = document.createElement("div");
@@ -114,9 +119,6 @@ function handleStrangerLeft() {
     msg.style.color = "red";
 
     chatBox.appendChild(msg);
-
-    const sessionRef = ref(realTimeDatabase, `sessions/${sessionId}`);
-    remove(sessionRef);
 
     // optional: disable sending
     sessionId = null;
@@ -127,14 +129,22 @@ function startChat(Id) {
     isDisconnectedHandled =false;
     window.currentSession =Id;
     sessionId =Id;
-    sessionId =Id1;
+
     const userId = sessionStorage.getItem("userId");
 
     const userSessionRef = ref(realTimeDatabase,`sessions/${sessionId}/users/${userId}`);
     onDisconnect(userSessionRef).remove();
 
     document.getElementById("status-msg")?.remove();
-    document.getElementById("Chat-Box").innerText = "Connected to stranger!";
+
+    const chatBox = document.getElementById("Chat-Box");
+    chatBox.innerHTML = "";
+
+    const msg = document.createElement("div");
+    msg.textContent = "✅ Connected to stranger!";
+    msg.style.color = "green";
+    chatBox.appendChild(msg);
+
     receivedMessages();
     listenForDisconnect();
 }
