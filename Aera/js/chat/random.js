@@ -149,8 +149,8 @@ function startChat(Id) {
 
     const userId = sessionStorage.getItem("userId");
 
-    const userSessionRef = ref(realTimeDatabase,`sessions/${sessionId}/users/${userId}`);
-    onDisconnect(userSessionRef).remove();
+    onDisconnect(ref(realTimeDatabase, `sessions/${sessionId}/status`)).set("ended");
+    onDisconnect(ref(realTimeDatabase, `sessions/${sessionId}/users/${userId}`)).remove();
 
     document.getElementById("status-msg")?.remove();
 
@@ -218,6 +218,7 @@ function skipStranger(){
 
     // clear UI
     const chatBox = document.getElementById("Chat-Box");
+    chatBox.innerHTML ="";
     chatBox.innerHTML = "<div>🔍 Looking for a new match...</div>";
 
     // restart matching
