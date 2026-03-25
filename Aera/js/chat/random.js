@@ -1,5 +1,6 @@
 import { realTimeDatabase } from "../common/firebase.js";
 import { ref, set, onDisconnect, get, remove,onValue,push, onChildAdded, serverTimestamp,runTransaction} from "../common/firebase.js";
+import {isAISession, generateAIReply} from "../common/ai.js";
 let sessionId = null;
 let isInitialized = false;
 let isDisconnectedHandled = false;
@@ -22,6 +23,7 @@ export async function initRandom() {
     listenForMatch(userId);
     await tryMatch(userId, userName);
 
+    // 🔥 Force check (fix delayed connection issue)
     const snap = await get(ref(realTimeDatabase, `userSessions/${userId}`));
     if (snap.exists()) {
         startChat(snap.val());
@@ -39,6 +41,12 @@ function leaveChatBtn(){
 }
 
 async function tryMatch(userId, userName) {
+
+    const AI_PROBABILITY = 0.3;
+    if (Math.random()<AI_PROBABILITY){
+        await createAISession(userId,userName);
+        return;
+    }
     const queueRef = ref(realTimeDatabase, "waitingQueue");
 
     let match = null;
@@ -108,7 +116,6 @@ function showLookingUI() {
 
 async function createSession(userA, nameA, userB, nameB) {
     const sessionRef = push(ref(realTimeDatabase, "sessions"));
-
     const sessionId = sessionRef.key;
 
     await set(sessionRef, {
@@ -176,6 +183,11 @@ function startChat(Id) {
     window.currentSession =Id;
     sessionId =Id;
 
+    const sessionSnap = await get(ref(realTimeDatabase, `sessions/${sessionId}`));
+    const sessionData = sessionSnap.val();
+
+    window.isAISession = isAISession(sessionData);
+
     const userId = sessionStorage.getItem("userId");
 
     onDisconnect(ref(realTimeDatabase, `sessions/${sessionId}/status`)).set("ended");
@@ -219,6 +231,11 @@ async function storeMsg(content, type) {
 function receivedMessages() {
     onChildAdded(ref(realTimeDatabase, `sessions/${sessionId}/messages`), (snapshot) => {
         AddToChat(snapshot.val());
+
+        // 🤖 AI response trigger
+        if (window.isAISession && msg.userID !== "ai-bot") {
+            await generateAIReply(sessionId, msg.msg, storeAIMessage);
+        }
     });
 }
 
@@ -281,3 +298,32 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+async function createAISession(userId, userName) {
+    const sessionRef = push(ref(realTimeDatabase, "sessions"));
+    const sessionId = sessionRef.key;
+
+    await set(sessionRef, {
+        users: {
+            [userId]: userName,
+            "ai-bot": "Stranger"
+        },
+        isAI: true,
+        status: "active",
+        createdAt: Date.now()
+    });
+
+    await set(ref(realTimeDatabase, `userSessions/${userId}`), sessionId);
+}
+
+async function storeAIMessage(content) {
+    const msgReference = push(ref(realTimeDatabase, `sessions/${sessionId}/messages`));
+
+    await set(msgReference, {
+        userID: "ai-bot",
+        userName: "Stranger",
+        type: "text",
+        msg: content,
+        timeStamp: serverTimestamp(),
+    });
+}
