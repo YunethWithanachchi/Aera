@@ -40,36 +40,37 @@ async function tryMatch(userId, userName) {
 
         if (!queue) queue = {};
 
+        const newQueue = {...queue};
+
         // find someone else
-        for (let otherId in queue) {
-            if (otherId !== userId) {
-                const otherUser = queue[otherId];
+        for (let otherId in newQueue) {
+            if (otherId !== userId) continue;
+            const otherUser = queue[otherId];
 
                 // remove both users from queue
-                delete queue[otherId];
-                delete queue[userId];
+            delete queue[otherId];
+            delete queue[userId];
 
                 // return match + cleaned queue
-                return {
-                    ...queue,
-                    __match__: {
-                        userA: userId,
-                        userB: otherId,
-                        nameA: userName,
-                        nameB: otherUser.userName
-                    }
-                };
-            }
+            return {
+                ...queue,
+                __match__: {
+                    userA: userId,
+                    userB: otherId,
+                    nameA: userName,
+                    nameB: otherUser.userName
+                }
+            };
         }
 
         // no match → add self
-        queue[userId] = {
+        newQueue[userId] = {
             userId,
             userName,
             joinedAt: Date.now()
         };
 
-        return queue;
+        return newQueue;
     });
 
     const data = result.snapshot.val();
@@ -91,7 +92,7 @@ async function tryMatch(userId, userName) {
             match.nameB
         );
     } else {
-        showLookingUI(); // 👈 replace joinQueue UI
+        showLookingUI();
     }
 }
 
