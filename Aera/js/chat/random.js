@@ -1,5 +1,5 @@
 import { realTimeDatabase } from "../common/firebase.js";
-import { ref, set, onDisconnect, get, remove,onValue,push, onChildAdded, serverTimestamp  } from "../common/firebase.js";
+import { ref, set, onDisconnect, get, remove,onValue,push, onChildAdded, serverTimestamp,runTransaction} from "../common/firebase.js";
 let sessionId = null;
 let isInitialized = false;
 let isDisconnectedHandled = false;
@@ -35,42 +35,74 @@ function leaveChatBtn(){
 
 async function tryMatch(userId, userName) {
     const queueRef = ref(realTimeDatabase, "waitingQueue");
-    const snapshot = await get(queueRef);
 
-    if (snapshot.exists()) {
-        const queue = snapshot.val();
+    const result = await runTransaction(queueRef, (queue) => {
+
+        if (!queue) queue = {};
 
         // find someone else
         for (let otherId in queue) {
             if (otherId !== userId) {
-                console.log("Match found!");
+                const otherUser = queue[otherId];
 
-                await createSession(userId, userName, otherId, queue[otherId].userName);
+                // remove both users from queue
+                delete queue[otherId];
+                delete queue[userId];
 
-                return;
+                // return match + cleaned queue
+                return {
+                    ...queue,
+                    __match__: {
+                        userA: userId,
+                        userB: otherId,
+                        nameA: userName,
+                        nameB: otherUser.userName
+                    }
+                };
             }
         }
-    }
 
-    // no match → join queue
-    await joinQueue(userId, userName);
-}
-async function joinQueue(userId, userName) {
-    const queueRef = ref(realTimeDatabase, `waitingQueue/${userId}`);
+        // no match → add self
+        queue[userId] = {
+            userId,
+            userName,
+            joinedAt: Date.now()
+        };
 
-    await set(queueRef, {
-        userId,
-        userName,
-        joinedAt: Date.now(),
+        return queue;
     });
 
-    onDisconnect(queueRef).remove();
+    const data = result.snapshot.val();
+
+    if (result.committed && data?.__match__) {
+        const match = data.__match__;
+
+        // ✅ IMPORTANT: remove __match__ immediately
+        await remove(ref(realTimeDatabase, "waitingQueue/__match__"));
+
+        // ✅ Prevent duplicate session creation
+        const exists = await get(ref(realTimeDatabase, `userSessions/${match.userA}`));
+        if (exists.exists()) return;
+
+        await createSession(
+            match.userA,
+            match.nameA,
+            match.userB,
+            match.nameB
+        );
+    } else {
+        showLookingUI(); // 👈 replace joinQueue UI
+    }
+}
+
+function showLookingUI() {
+    const chatBox = document.getElementById("Chat-Box");
+    chatBox.innerHTML = "";
 
     const status = document.createElement("div");
-    const chatBox =document.getElementById("Chat-Box");
-    chatBox.innerHTML="";
-    status.textContent =  "🔍 Looking for a match...";
+    status.textContent = "🔍 Looking for a match...";
     status.id = "status-msg";
+
     chatBox.appendChild(status);
 }
 
