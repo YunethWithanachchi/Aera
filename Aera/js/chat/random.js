@@ -209,7 +209,7 @@ function AddToChat(RawMsg) {
     document.getElementById("Typing-Region").focus();
 }
 
-function skipStranger(){
+async function skipStranger(){
     if (unsubscribeMatch) { unsubscribeMatch(); unsubscribeMatch = null; }
 
     const userId = sessionStorage.getItem("userId");
