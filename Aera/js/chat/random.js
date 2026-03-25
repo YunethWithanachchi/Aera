@@ -127,8 +127,6 @@ function listenForDisconnect() {
 
 function handleStrangerLeft() {
 
-    if (isDisconnectedHandled) return;
-
     const chatBox = document.getElementById("Chat-Box");
 
     const msg = document.createElement("div");
