@@ -21,6 +21,11 @@ export async function initRandom() {
 
     listenForMatch(userId);
     await tryMatch(userId, userName);
+
+    const snap = await get(ref(realTimeDatabase, `userSessions/${userId}`));
+    if (snap.exists()) {
+        startChat(snap.val());
+    }
 }
 
 function leaveChatBtn(){
@@ -131,7 +136,7 @@ function listenForMatch(userId) {
 
     unsubscribeMatch = onValue(ref(realTimeDatabase, `userSessions/${userId}`), (snapshot) => {
         const id = snapshot.val();
-        if (id) {
+        if (id && !sessionId) {
             // ✅ Unsubscribe immediately — job is done, don't accumulate
             if (unsubscribeMatch) { unsubscribeMatch(); unsubscribeMatch = null; }
             startChat(id);
