@@ -229,14 +229,21 @@ async function storeMsg(content, type) {
 }
 
 async function receivedMessages() {
-    onChildAdded(ref(realTimeDatabase, `sessions/${sessionId}/messages`), (snapshot) => {
-        AddToChat(snapshot.val());
+    onChildAdded(ref(realTimeDatabase, `sessions/${sessionId}/messages`), async (snapshot) => {
+        const msg = snapshot.val();
+
+        AddToChat(msg);
+        if (isInitialized) return;
 
         // 🤖 AI response trigger
         if (window.isAISession && msg.userID !== "ai-bot") {
             await generateAIReply(sessionId, msg.msg, storeAIMessage);
         }
     });
+    // after iniial messages loaed
+    setTimeout(()=>{
+        isInitialized=false;
+    },500);
 }
 
 function AddToChat(RawMsg) {
