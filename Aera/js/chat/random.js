@@ -177,7 +177,7 @@ function handleStrangerLeft() {
     sessionId = null;
 }
 
-function startChat(Id) {
+async function startChat(Id) {
 
     isDisconnectedHandled =false;
     window.currentSession =Id;
