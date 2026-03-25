@@ -5,6 +5,7 @@ let sessionId = null;
 let isInitialized = false;
 let isDisconnectedHandled = false;
 let unsubscribeMatch = null;
+let messagesListener = null;
 export async function initRandom() {
     if (isInitialized) return;
     isInitialized = true;
@@ -229,11 +230,11 @@ async function storeMsg(content, type) {
 }
 
 async function receivedMessages() {
-    onChildAdded(ref(realTimeDatabase, `sessions/${sessionId}/messages`), async (snapshot) => {
+    if (messagesListener){messagesListener();messagesListener=null;}
+    const messagesRef = ref(realTimeDatabase, `sessions/${sessionId}/messages`);
+    messagesListener = onChildAdded(messagesRef,async (snapshot)=>{
         const msg = snapshot.val();
-
         AddToChat(msg);
-        if (isInitialized) return;
 
         // 🤖 AI response trigger
         if (window.isAISession && msg.userID !== "ai-bot") {
@@ -264,6 +265,7 @@ function AddToChat(RawMsg) {
 }
 
 async function skipStranger(){
+    if (messagesListener){messagesListener();messagesListener=null;}
     if (unsubscribeMatch) { unsubscribeMatch(); unsubscribeMatch = null; }
 
     const userId = sessionStorage.getItem("userId");
