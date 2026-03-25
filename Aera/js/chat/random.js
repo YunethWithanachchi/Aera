@@ -228,7 +228,7 @@ async function storeMsg(content, type) {
     });
 }
 
-function receivedMessages() {
+async function receivedMessages() {
     onChildAdded(ref(realTimeDatabase, `sessions/${sessionId}/messages`), (snapshot) => {
         AddToChat(snapshot.val());
 
