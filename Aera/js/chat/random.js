@@ -1,8 +1,9 @@
 import { realTimeDatabase } from "../common/firebase.js";
-import { ref, set, onDisconnect, get, remove,onValue, onChildAdded, serverTimestamp  } from "../common/firebase.js";
+import { ref, set, onDisconnect, get, remove,onValue,push, onChildAdded, serverTimestamp  } from "../common/firebase.js";
 let sessionId = null;
 let isInitialized = false;
 let isDisconnectedHandled = false;
+let unsubscribedMatch = null;
 export async function initRandom() {
     if (isInitialized) return;
     isInitialized = true;
@@ -16,6 +17,7 @@ export async function initRandom() {
     }
 
     document.querySelector("main").style.display = "block";
+    document.getElementById("Chat-Box").innerHTML = "";
 
     listenForMatch(userId);
     await tryMatch(userId, userName);
@@ -71,7 +73,6 @@ async function joinQueue(userId, userName) {
     status.id = "status-msg";
     chatBox.appendChild(status);
 }
-import { push } from "../common/firebase.js";
 
 async function createSession(userA, nameA, userB, nameB) {
     const sessionRef = push(ref(realTimeDatabase, "sessions"));
@@ -99,15 +100,14 @@ async function createSession(userA, nameA, userB, nameB) {
 }
 
 function listenForMatch(userId) {
-    const sessionRef = ref(realTimeDatabase, `userSessions/${userId}`);
+    if (unsubscribeMatch) { unsubscribeMatch(); unsubscribeMatch = null; }
 
-    onValue(sessionRef, (snapshot) => {
-        const sessionId = snapshot.val();
-
-        if (sessionId) {
-            console.log("Matched! Session:", sessionId);
-
-            startChat(sessionId);
+    unsubscribeMatch = onValue(ref(realTimeDatabase, `userSessions/${userId}`), (snapshot) => {
+        const id = snapshot.val();
+        if (id) {
+            // ✅ Unsubscribe immediately — job is done, don't accumulate
+            if (unsubscribeMatch) { unsubscribeMatch(); unsubscribeMatch = null; }
+            startChat(id);
         }
     });
 }
@@ -134,7 +134,6 @@ function handleStrangerLeft() {
     const msg = document.createElement("div");
     msg.textContent = "⚠️ Stranger has disconnected.";
     msg.style.color = "red";
-
     chatBox.appendChild(msg);
 
     // optional: disable sending
@@ -151,6 +150,7 @@ function startChat(Id) {
 
     onDisconnect(ref(realTimeDatabase, `sessions/${sessionId}/status`)).set("ended");
     onDisconnect(ref(realTimeDatabase, `sessions/${sessionId}/users/${userId}`)).remove();
+    onDisconnect(ref(realTimeDatabase,`userSessions/${userId}`)).remove();
 
     document.getElementById("status-msg")?.remove();
 
@@ -210,16 +210,23 @@ function AddToChat(RawMsg) {
 }
 
 function skipStranger(){
-    if (!sessionId) return;
+    if (unsubscribeMatch) { unsubscribeMatch(); unsubscribeMatch = null; }
 
-    set(ref(realTimeDatabase,`sessions/${sessionId}/status`),"ended");
-    sessionId = null;
+    const userId = sessionStorage.getItem("userId");
+
+    if (sessionId) {
+        // In a chat — notify stranger and end session
+        await set(ref(realTimeDatabase, `sessions/${sessionId}/status`), "ended");
+        // ✅ Clean up userSessions so stale ID doesn't fire listenForMatch immediately on next attach
+        await remove(ref(realTimeDatabase, `userSessions/${userId}`));
+        sessionId = null;
+    } else {
+        // ✅ Still in queue (no match yet) — remove from queue so we can rejoin fresh
+        await remove(ref(realTimeDatabase, `waitingQueue/${userId}`));
+    }
+
     isInitialized = false;
-
-    // clear UI
-    const chatBox = document.getElementById("Chat-Box");
-    chatBox.innerHTML ="";
-    chatBox.innerHTML = "<div>🔍 Looking for a new match...</div>";
+    isDisconnectedHandled = false;
 
     // restart matching
     initRandom();
