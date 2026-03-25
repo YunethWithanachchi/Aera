@@ -36,66 +36,60 @@ function leaveChatBtn(){
 async function tryMatch(userId, userName) {
     const queueRef = ref(realTimeDatabase, "waitingQueue");
 
-    const result = await runTransaction(queueRef, (queue) => {
+    let match = null;
 
+    const result = await runTransaction(queueRef, (queue) => {
         if (!queue) queue = {};
 
-        const newQueue = {...queue};
-
         // find someone else
-        for (let otherId in newQueue) {
-            if (otherId !== userId) continue;
+        for (let otherId in queue) {
+            if (otherId === userId) continue;
+
             const otherUser = queue[otherId];
 
-                // remove both users from queue
+            // remove both users from queue
             delete queue[otherId];
             delete queue[userId];
 
-                // return match + cleaned queue
-            return {
-                ...queue,
-                __match__: {
-                    userA: userId,
-                    userB: otherId,
-                    nameA: userName,
-                    nameB: otherUser.userName
-                }
+            // store match locally (NOT in DB)
+            match = {
+                userA: userId,
+                nameA: userName,
+                userB: otherId,
+                nameB: otherUser.userName
             };
+
+            return queue;
         }
 
         // no match → add self
-        newQueue[userId] = {
-            userId,
-            userName,
-            joinedAt: Date.now()
+        return {
+            ...queue,
+            [userId]: {
+                userId,
+                userName,
+                joinedAt: Date.now()
+            }
         };
-
-        return newQueue;
     });
 
-    const data = result.snapshot.val();
+    // If a match was found
+    if (result.committed && match) {
 
-    if (result.committed && data?.__match__) {
-        const match = data.__match__;
+        // ✅ Only ONE user creates session (prevents duplicates)
+        if (match.userA === userId) {
+            await createSession(
+                match.userA,
+                match.nameA,
+                match.userB,
+                match.nameB
+            );
+        }
 
-        // ✅ IMPORTANT: remove __match__ immediately
-        await remove(ref(realTimeDatabase, "waitingQueue/__match__"));
-
-        // ✅ Prevent duplicate session creation
-        const exists = await get(ref(realTimeDatabase, `userSessions/${match.userA}`));
-        if (exists.exists()) return;
-
-        await createSession(
-            match.userA,
-            match.nameA,
-            match.userB,
-            match.nameB
-        );
     } else {
         showLookingUI();
     }
 }
-
 function showLookingUI() {
     const chatBox = document.getElementById("Chat-Box");
     chatBox.innerHTML = "";
