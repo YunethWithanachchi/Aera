@@ -3,7 +3,7 @@ import { ref, set, onDisconnect, get, remove,onValue,push, onChildAdded, serverT
 let sessionId = null;
 let isInitialized = false;
 let isDisconnectedHandled = false;
-let unsubscribedMatch = null;
+let unsubscribeMatch = null;
 export async function initRandom() {
     if (isInitialized) return;
     isInitialized = true;
