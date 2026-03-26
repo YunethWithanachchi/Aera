@@ -20,7 +20,7 @@ export async function generateAIReply(sessionId, userMsg, sendMessage) {
             break;
 
         case "omegle":
-            reply = elizaReply(userMsg);
+            reply = omegleAI(userMsg);
             break;
 
         case "random":
