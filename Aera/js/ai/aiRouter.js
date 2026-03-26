@@ -2,7 +2,7 @@ import { geminiReply } from "./gemini.js";
 import { omegleAI } from "./omegleAI.js";
 
 // 🔥 Change this anytime
-const AI_MODE = "gemini";
+const AI_MODE = "omegle";
 // options: "gemini", "eliza", "random"
 
 export function isAISession(sessionData) {
