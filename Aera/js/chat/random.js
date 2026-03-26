@@ -1,12 +1,6 @@
 import { realTimeDatabase } from "../common/firebase.js";
 import { ref, set, onDisconnect, get, remove,onValue,push, onChildAdded, serverTimestamp,runTransaction} from "../common/firebase.js";
-import {isAISession, generateAIReply} from "../ai/ai.js";
-import { geminiReply } from "../ai/gemini.js";
-
-(async () => {
-    const reply = await geminiReply("Hello AI");
-    console.log("AI says:", reply);
-})();
+import {isAISession, generateAIReply} from "../ai/aiRouter.js";
 let sessionId = null;
 let isInitialized = false;
 let isDisconnectedHandled = false;
