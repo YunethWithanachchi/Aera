@@ -1,11 +1,18 @@
 import { realTimeDatabase } from "../common/firebase.js";
 import { ref, set, onDisconnect, get, remove,onValue,push, onChildAdded, serverTimestamp,runTransaction} from "../common/firebase.js";
-import {isAISession, generateAIReply} from "../common/ai.js";
+import {isAISession, generateAIReply} from "../ai/ai.js";
+import { geminiReply } from "../ai/gemini.js";
+
+(async () => {
+    const reply = await geminiReply("Hello AI");
+    console.log("AI says:", reply);
+})();
 let sessionId = null;
 let isInitialized = false;
 let isDisconnectedHandled = false;
 let unsubscribeMatch = null;
 let messagesListener = null;
+let isAIThinking = false;
 export async function initRandom() {
     if (isInitialized) return;
     isInitialized = true;
@@ -229,22 +236,34 @@ async function storeMsg(content, type) {
     });
 }
 
-async function receivedMessages() {
-    if (messagesListener){messagesListener();messagesListener=null;}
+function receivedMessages() {
+    if (messagesListener) {
+        messagesListener();
+        messagesListener = null;
+    }
+
+    let isInitialLoad = true;
+
     const messagesRef = ref(realTimeDatabase, `sessions/${sessionId}/messages`);
-    messagesListener = onChildAdded(messagesRef,async (snapshot)=>{
+
+    messagesListener = onChildAdded(messagesRef, async (snapshot) => {
         const msg = snapshot.val();
+
         AddToChat(msg);
+
+        // 🚫 Ignore old messages (VERY IMPORTANT)
+        if (isInitialLoad) return;
 
         // 🤖 AI response trigger
         if (window.isAISession && msg.userID !== "ai-bot") {
             await generateAIReply(sessionId, msg.msg, storeAIMessage);
         }
     });
-    // after iniial messages loaed
-    setTimeout(()=>{
-        isInitialized=false;
-    },500);
+
+    // ✅ After initial batch is loaded
+    setTimeout(() => {
+        isInitialLoad = false;
+    }, 500);
 }
 
 function AddToChat(RawMsg) {
