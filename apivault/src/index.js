@@ -26,7 +26,30 @@ export default {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({
-							contents: [{ parts: [{ text: message }] }]
+							contents: [
+								{
+									role: "user",
+									parts: [
+										{
+											text: `
+												You are a friendly, slightly witty stranger in an anonymous chat app.
+
+												Rules:
+												- Keep responses SHORT (1–2 sentences max)
+												- Be casual and human-like
+												- Use a bit of humor when appropriate
+												- Don't sound like an AI assistant
+												- No long explanations
+												- Act like you're chatting, not teaching
+												- Have a very flirty nature
+												- Be interested to know the other stranger well
+
+												User: ${message}
+												`
+										}
+									]
+								}
+							]
 						})
 					}
 				);
