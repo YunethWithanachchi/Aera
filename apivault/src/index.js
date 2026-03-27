@@ -16,7 +16,8 @@ export default {
 		}
 
 		try {
-			const { bot, message } = await request.json();
+			const { bot, message,history = [] } = await request.json();
+			const conversation = history.map(msg => `Stranger: ${msg}`).join("\n");
 
 			if (bot === "gemini") {
 				const res = await fetch(
@@ -42,8 +43,9 @@ export default {
 												- No long explanations
 												- Act like you're chatting, not teaching
 												- Have a very flirty nature
-												- Be interested to know the other stranger well
+												- Be interested to know the other stranger well where needed
 
+												Conversation so far: ${conversation}
 												User: ${message}
 												`
 										}
